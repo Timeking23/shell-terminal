@@ -13,6 +13,7 @@ size_t len = 0;
  do{
   printf("wish> ");
   ssize_t ninput =  getline(&input,&len,stdin);
+  input[strcspn(input, "\n")] = 0;
   if (strcmp(input, "exit") == 0){
     exit(0);
   }
@@ -20,22 +21,24 @@ size_t len = 0;
     pid_t pid = fork();
     if (pid  == 0)
     {
-      printf("child create\n");
       char path[] = "/bin/ls";
       char* argv[] = {"ls", NULL}; 
       execv(path, argv);
-      perror("execv failed");
-      _exit(1);
     }
-    else if (pid > 0)
+  }
+  if (strcmp(input, "cd") == 0){
+    if (argc == 1)
     {
-    int status;
-    waitpid(pid, &status, 0);
+      chdir("~");
+    }
+    if (argc == 2)
+    {
+      chdir(argv[2]);
     }
     else
     {
-    perror("fork failed");
-    exit(1);
+      char error_message[30] = "An error has occurred\n";
+      write(STDERR_FILENO, error_message, strlen(error_message)); 
     }
   }
  }while(true);
